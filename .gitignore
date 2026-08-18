@@ -1,0 +1,17 @@
+# Dependências
+**/node_modules/
+**/dist/
+**/.angular/
+
+# .NET
+**/bin/
+**/obj/
+**/*.user
+
+# Ambiente
+**/.env.local
+**/appsettings.Local.json
+
+# IDEs
+.idea/
+.DS_Store

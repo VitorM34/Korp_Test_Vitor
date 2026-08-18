@@ -1,0 +1,137 @@
+<div class="page-container">
+  <button mat-button (click)="voltar()" class="btn-voltar">
+    <mat-icon>arrow_back</mat-icon> Voltar
+  </button>
+
+  @if (carregando) {
+    <div class="loading-center">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else if (nota) {
+    <!-- Cabeçalho da nota -->
+    <div class="nota-header">
+      <div>
+        <h1 class="page-title">
+          <mat-icon>receipt</mat-icon>
+          Nota Fiscal Nº {{ nota.numeracao }}
+        </h1>
+        <p class="nota-meta">
+          Criada em {{ nota.dataCriacao | date:'dd/MM/yyyy HH:mm' }}
+          @if (nota.dataImpressao) {
+            · Impressa em {{ nota.dataImpressao | date:'dd/MM/yyyy HH:mm' }}
+          }
+        </p>
+      </div>
+      <span class="status-chip" [class.aberta]="nota.status === 'Aberta'" [class.fechada]="nota.status === 'Fechada'">
+        {{ nota.status }}
+      </span>
+    </div>
+
+    <!-- Botão de Impressão -->
+    @if (nota.status === 'Aberta') {
+      <mat-card class="imprimir-card">
+        <mat-card-content>
+          <div class="imprimir-row">
+            <div>
+              <p><strong>Imprimir Nota Fiscal</strong> — fecha a nota e debita o estoque de cada produto.</p>
+              @if (erroImpressao) {
+                <p class="erro-impressao">
+                  <mat-icon>error_outline</mat-icon> {{ erroImpressao }}
+                </p>
+              }
+            </div>
+            <button
+              mat-raised-button
+              color="accent"
+              class="btn-imprimir"
+              (click)="imprimir()"
+              [disabled]="imprimindo || nota.itens.length === 0">
+              @if (imprimindo) {
+                <mat-spinner diameter="22" class="btn-spinner"></mat-spinner>
+                <span>Processando...</span>
+              } @else {
+                <mat-icon>print</mat-icon>
+                <span>Imprimir</span>
+              }
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    } @else {
+      <mat-card class="fechada-card">
+        <mat-card-content>
+          <mat-icon>check_circle</mat-icon>
+          Nota fiscal fechada — estoque atualizado.
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <!-- Itens da nota -->
+    <mat-card class="itens-card">
+      <mat-card-header>
+        <mat-card-title>Itens da Nota</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (nota.itens.length === 0) {
+          <p class="empty-state">Nenhum item adicionado.</p>
+        } @else {
+          <table mat-table [dataSource]="nota.itens" class="mat-elevation-z1 full-width">
+            <ng-container matColumnDef="descricaoProduto">
+              <th mat-header-cell *matHeaderCellDef>Produto</th>
+              <td mat-cell *matCellDef="let item">{{ item.descricaoProduto }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="quantidade">
+              <th mat-header-cell *matHeaderCellDef>Quantidade</th>
+              <td mat-cell *matCellDef="let item">{{ item.quantidade }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Adicionar item (só se aberta) -->
+    @if (nota.status === 'Aberta') {
+      <mat-card class="add-item-card">
+        <mat-card-header>
+          <mat-card-title>Adicionar Produto</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="itemForm" (ngSubmit)="adicionarItem()" class="item-form">
+            <mat-form-field appearance="outline" class="field-produto">
+              <mat-label>Produto</mat-label>
+              <mat-select formControlName="produtoId">
+                @for (p of produtos; track p.id) {
+                  <mat-option [value]="p.id">{{ p.codigo }} — {{ p.descricao }} (saldo: {{ p.saldo }})</mat-option>
+                }
+              </mat-select>
+              @if (itemForm.get('produtoId')?.hasError('required') && itemForm.get('produtoId')?.touched) {
+                <mat-error>Selecione um produto</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="field-qtd">
+              <mat-label>Quantidade</mat-label>
+              <input matInput type="number" formControlName="quantidade" min="1" />
+              @if (itemForm.get('quantidade')?.hasError('min') && itemForm.get('quantidade')?.touched) {
+                <mat-error>Mínimo 1</mat-error>
+              }
+            </mat-form-field>
+
+            <button mat-raised-button color="primary" type="submit" [disabled]="itemForm.invalid || adicionando">
+              @if (adicionando) {
+                <mat-spinner diameter="20"></mat-spinner>
+              } @else {
+                <mat-icon>add</mat-icon>
+              }
+              <span>Adicionar</span>
+            </button>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    }
+  }
+</div>
