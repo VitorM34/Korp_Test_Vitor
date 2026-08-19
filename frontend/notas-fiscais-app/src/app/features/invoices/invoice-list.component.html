@@ -1,0 +1,155 @@
+<div>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">
+        <span class="material-icons">description</span>
+        Notas Fiscais
+      </h1>
+      <p class="page-subtitle">Emita e acompanhe suas notas fiscais</p>
+    </div>
+    <button mat-raised-button class="btn-primary" (click)="createInvoice()" [disabled]="creating()">
+      <span>{{ creating() ? 'Criando...' : '+ Nova Nota Fiscal' }}</span>
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <button type="button" class="stat-card stat-card--click" (click)="applyFilter('all')">
+      <div class="stat-icon stat-icon--indigo">
+        <span class="material-icons">receipt</span>
+      </div>
+      <div>
+        <div class="stat-value">{{ invoices().length }}</div>
+        <div class="stat-label">Total de notas</div>
+      </div>
+    </button>
+    <button type="button" class="stat-card stat-card--click" (click)="applyFilter('Open')">
+      <div class="stat-icon stat-icon--blue">
+        <span class="material-icons">hourglass_empty</span>
+      </div>
+      <div>
+        <div class="stat-value">{{ openInvoicesCount() }}</div>
+        <div class="stat-label">Em aberto</div>
+      </div>
+    </button>
+    <button type="button" class="stat-card stat-card--click" (click)="applyFilter('Closed')">
+      <div class="stat-icon stat-icon--green">
+        <span class="material-icons">assignment_turned_in</span>
+      </div>
+      <div>
+        <div class="stat-value">{{ closedInvoicesCount() }}</div>
+        <div class="stat-label">Emitidas</div>
+      </div>
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="card-title list-toolbar">
+      <div class="list-toolbar-left">
+        <span class="material-icons">list</span>
+        Todas as Notas
+      </div>
+      <label class="search-wrap">
+        <span class="material-icons">search</span>
+        <input
+          type="search"
+          class="search-input"
+          placeholder="Buscar nº ou produto"
+          [value]="search()"
+          (input)="onSearch($event)" />
+      </label>
+    </div>
+
+    <div class="filter-chips">
+      <button type="button" class="chip" [class.chip--active]="filterBy() === 'all'" (click)="applyFilter('all')">
+        Todas
+        <span class="chip-count">{{ invoices().length }}</span>
+      </button>
+      <button type="button" class="chip" [class.chip--active]="filterBy() === 'Open'" (click)="applyFilter('Open')">
+        Abertas
+        <span class="chip-count">{{ openInvoicesCount() }}</span>
+      </button>
+      <button type="button" class="chip" [class.chip--active]="filterBy() === 'Closed'" (click)="applyFilter('Closed')">
+        Emitidas
+        <span class="chip-count">{{ closedInvoicesCount() }}</span>
+      </button>
+    </div>
+
+    @if (loading()) {
+      <div>
+        @for (i of [1,2,3]; track i) {
+          <div class="skeleton-row">
+            <div class="skeleton-cell skeleton-cell--num"></div>
+            <div class="skeleton-cell skeleton-cell--status"></div>
+            <div class="skeleton-cell skeleton-cell--items"></div>
+            <div class="skeleton-cell skeleton-cell--date"></div>
+            <div class="skeleton-cell skeleton-cell--date"></div>
+          </div>
+        }
+      </div>
+    } @else if (emptyList()) {
+      <div class="empty-state">
+        <span class="material-icons">description</span>
+        <p>Nenhuma nota fiscal ainda.</p>
+        <button mat-raised-button class="btn-primary empty-cta" (click)="createInvoice()" [disabled]="creating()">
+          {{ creating() ? 'Criando...' : 'Criar primeira nota' }}
+        </button>
+      </div>
+    } @else if (noSearchResults()) {
+      <div class="empty-state">
+        <span class="material-icons">search</span>
+        <p>Nenhuma nota encontrada com esse filtro.</p>
+        <button mat-stroked-button class="empty-cta" (click)="clearFilters()">Limpar filtros</button>
+      </div>
+    } @else {
+      <div class="table-scroll">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Nº</th>
+            <th>Status</th>
+            <th>Itens</th>
+            <th>Criada em</th>
+            <th>Impressa em</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (n of filteredInvoices(); track n.id) {
+            <tr class="tr-hover tr-animate" (click)="openDetail(n.id)" [class.tr-removing]="deleting() === n.id">
+              <td><strong class="number-cell">#{{ n.number }}</strong></td>
+              <td>
+                <span class="badge" [class.badge--open]="n.status === 'Open'" [class.badge--closed]="n.status === 'Closed'">
+                  {{ n.status | invoiceStatus }}
+                </span>
+              </td>
+              <td>
+                <span class="item-count">{{ n.items.length }} {{ n.items.length === 1 ? 'item' : 'itens' }}</span>
+              </td>
+              <td class="date-cell">{{ n.createdDate | date:'dd/MM/yy HH:mm' }}</td>
+              <td class="date-cell">{{ n.printedDate ? (n.printedDate | date:'dd/MM/yy HH:mm') : '—' }}</td>
+              <td>
+                <div class="row-actions">
+                  <button mat-icon-button (click)="openDetail(n.id); $event.stopPropagation()" title="Abrir nota">
+                    <span class="material-icons icon-arrow">arrow_forward</span>
+                  </button>
+                  @if (n.status === 'Closed') {
+                    <button mat-icon-button (click)="viewInvoice(n.id, $event)" title="Visualizar NF">
+                      <span class="material-icons icon-action icon-action--view">description</span>
+                    </button>
+                  }
+                  @if (n.status === 'Open') {
+                    <button mat-icon-button (click)="deleteInvoice(n, $event)" [disabled]="deleting() === n.id" title="Excluir nota">
+                      <span class="material-icons icon-action icon-action--delete">delete</span>
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      </div>
+    }
+  </div>
+</div>

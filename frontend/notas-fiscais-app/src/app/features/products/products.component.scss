@@ -1,0 +1,175 @@
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+  min-width: 0;
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1a237e;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #90a4ae;
+  margin-top: 4px;
+}
+
+.main-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
+  align-items: start;
+  min-width: 0;
+}
+
+.form-panel {
+  position: relative;
+  padding: 22px 22px 20px;
+}
+
+.form-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eef0f6;
+}
+
+.form-head-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: #e8eaf6;
+  color: #3949ab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  .material-icons {
+    font-size: 22px;
+  }
+}
+
+.form-head-title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #1a237e;
+  line-height: 1.2;
+}
+
+.form-head-sub {
+  margin: 3px 0 0;
+  font-size: 0.75rem;
+  color: #90a4ae;
+  line-height: 1.35;
+}
+
+.list-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.list-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.product-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.product-form mat-form-field {
+  width: 100%;
+}
+
+.balance-suffix {
+  color: #90a4ae;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding-right: 4px;
+}
+
+.product-form input[type='number'] {
+  -moz-appearance: textfield;
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+.btn-submit {
+  width: 100%;
+  margin-top: 4px;
+  height: 44px !important;
+  gap: 6px;
+
+  .material-icons {
+    font-size: 20px;
+  }
+}
+
+.code-chip {
+  background: #e8eaf6;
+  color: #3949ab;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-family: monospace;
+}
+
+.unit {
+  color: #b0bec5;
+  font-size: 0.8rem;
+  margin-left: 2px;
+}
+
+/* Larguras do skeleton de carregamento da tabela de produtos */
+.skeleton-cell--code    { width: 80px; }
+.skeleton-cell--desc    { width: 180px; margin-left: 16px; }
+.skeleton-cell--balance { width: 50px; margin-left: auto; }
+
+/* ── Desktop responsivo ── */
+
+/* Laptop médio: comprime coluna do formulário */
+@media (max-width: 1200px) {
+  .main-grid {
+    grid-template-columns: 300px 1fr;
+  }
+}
+
+/* Laptop pequeno / janela estreita: empilha */
+@media (max-width: 960px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-panel {
+    position: relative;
+  }
+
+  .stats-row {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+/* Janela muito estreita */
+@media (max-width: 680px) {
+  .stats-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}

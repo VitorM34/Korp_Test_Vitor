@@ -1,0 +1,351 @@
+<div>
+  <div class="page-header">
+    <button mat-button class="btn-back" (click)="back()">
+      <span class="btn-content">
+        <span class="material-icons">arrow_back</span>
+        Voltar
+      </span>
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-center">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p>Carregando nota fiscal...</p>
+    </div>
+  } @else if (invoice()) {
+    @let n = invoice()!;
+
+    <!-- Cabeçalho da nota -->
+    <div class="invoice-hero">
+      <div class="invoice-hero-left">
+        <div class="invoice-number">#{{ n.number }}</div>
+        <div class="invoice-meta">
+          Criada em {{ n.createdDate | date:"dd/MM/yyyy 'às' HH:mm" }}
+          @if (n.printedDate) {
+            · Emitida em {{ n.printedDate | date:"dd/MM/yyyy 'às' HH:mm" }}
+          }
+        </div>
+      </div>
+      <div class="invoice-hero-actions">
+        <span class="badge badge-lg" [class.badge--open]="n.status === 'Open'" [class.badge--closed]="n.status === 'Closed'">
+          <span class="material-icons">{{ n.status === 'Open' ? 'radio_button_checked' : 'check_circle' }}</span>
+          {{ n.status | invoiceStatus }}
+        </span>
+        @if (n.status === 'Open') {
+          <button mat-icon-button class="btn-delete-invoice" title="Excluir nota" (click)="deleteInvoice()" [disabled]="deleting()">
+            <span class="material-icons icon-delete-invoice">delete</span>
+          </button>
+        }
+        @if (n.status === 'Closed') {
+          <button mat-stroked-button class="btn-reimprimir" (click)="openPrintView()">
+            <span class="material-icons">print</span>
+            Reimprimir
+          </button>
+          <button mat-raised-button class="btn-primary btn-visualizar-nf-primary" (click)="viewInvoice()">
+            <span class="material-icons">description</span>
+            Visualizar NF
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Painel de emissão -->
+    @if (n.status === 'Open') {
+      <div class="imprimir-panel" [class.has-error]="!!printError()">
+        <div class="imprimir-info">
+          <span class="material-icons imprimir-icon">print</span>
+          <div>
+            <strong>Emitir Nota Fiscal</strong>
+            <p>Confirma o débito de estoque e fecha a nota permanentemente.</p>
+            @if (n.items.length === 0) {
+              <p class="warning-text">
+                ⚠ Adicione pelo menos um produto antes de emitir.
+              </p>
+            }
+            @if (printError()) {
+              <div class="error-banner imprimir-error">
+                <span class="material-icons">error_outline</span>
+                {{ printError() }}
+              </div>
+            }
+          </div>
+        </div>
+        <div class="imprimir-acoes">
+          <button
+            mat-raised-button
+            class="btn-imprimir"
+            (click)="print()"
+            [disabled]="printing() || n.items.length === 0">
+            <span>{{ printing() ? 'Processando...' : 'Emitir Nota' }}</span>
+          </button>
+          @if (n.items.length > 0) {
+            <button mat-stroked-button class="btn-preview-nf" (click)="viewInvoice()">
+              <span class="material-icons">visibility</span>
+              Prévia
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    @if (n.status === 'Closed') {
+      <div class="emitida-banner">
+        <span class="material-icons">done_all</span>
+        <span>Nota fiscal emitida com sucesso — estoque atualizado automaticamente.</span>
+      </div>
+    }
+
+    <div class="resumo-stats">
+      <div class="resumo-stat">
+        <span class="material-icons">shopping_cart</span>
+        <div>
+          <div class="resumo-val">{{ n.items.length }}</div>
+          <div class="resumo-lbl">{{ n.items.length === 1 ? 'item' : 'itens' }}</div>
+        </div>
+      </div>
+      <div class="resumo-stat">
+        <span class="material-icons">view_list</span>
+        <div>
+          <div class="resumo-val">{{ totalUnits() }}</div>
+          <div class="resumo-lbl">unidades</div>
+        </div>
+      </div>
+      <div class="resumo-stat">
+        <span class="material-icons">{{ n.status === 'Closed' ? 'lock' : 'lock_open' }}</span>
+        <div>
+          <div class="resumo-val resumo-val-sm">{{ n.status | invoiceStatus }}</div>
+          <div class="resumo-lbl">{{ n.status === 'Closed' ? 'estoque debitado' : 'em edição' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <!-- Itens -->
+      <div class="card">
+        <div class="card-title">
+          <span class="material-icons">shopping_cart</span>
+          Itens da Nota
+          @if (n.items.length > 0) {
+            <span class="item-badge">{{ n.items.length }}</span>
+          }
+        </div>
+
+        @if (n.items.length === 0) {
+          <div class="empty-state">
+            <span class="material-icons">inbox</span>
+            <p>Adicione produtos à nota usando o formulário ao lado.</p>
+          </div>
+        } @else {
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th class="col-idx">#</th>
+                <th>Produto</th>
+                <th class="col-center col-qty">Qtd.</th>
+                @if (n.status === 'Open') {
+                  <th class="col-center col-actions">Ações</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of n.items; track item.id) {
+                <tr [class.tr-removing]="removing() === item.id">
+                  <td class="idx-cell">{{ $index + 1 }}</td>
+                  <td>{{ item.productDescription }}</td>
+                  <td class="col-center">
+                    @if (editingItemId() === item.id) {
+                      <input
+                        id="qty-input-{{ item.id }}"
+                        type="number"
+                        class="qtd-edit-input"
+                        [value]="item.quantity"
+                        min="1"
+                        (keydown.enter)="saveEditingById(item)"
+                        (keydown.escape)="editingItemId.set(null)"
+                        autofocus />
+                    } @else {
+                      <span class="qtd-chip">{{ item.quantity }}</span>
+                    }
+                  </td>
+                  @if (n.status === 'Open') {
+                    <td class="col-center col-actions-cell">
+                      <div class="row-actions-center">
+                        @if (editingItemId() === item.id) {
+                          <button mat-icon-button (click)="saveEditingById(item)" title="Salvar">
+                            <span class="material-icons icon-save">check</span>
+                          </button>
+                          <button mat-icon-button (click)="editingItemId.set(null)" title="Cancelar">
+                            <span class="material-icons icon-cancel">close</span>
+                          </button>
+                        } @else {
+                          <button mat-icon-button (click)="startEditing(item)" [disabled]="removing() === item.id" title="Editar quantidade">
+                            <span class="material-icons icon-edit">edit</span>
+                          </button>
+                          <button mat-icon-button (click)="removeItem(item)" [disabled]="removing() === item.id" title="Remover item">
+                            <span class="material-icons icon-remove">delete</span>
+                          </button>
+                        }
+                      </div>
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr class="tfooter">
+                <td colspan="2">Total</td>
+                <td class="col-center"><span class="qtd-chip qtd-total">{{ totalUnits() }}</span></td>
+                @if (n.status === 'Open') { <td></td> }
+              </tr>
+            </tfoot>
+          </table>
+        }
+      </div>
+
+      <!-- Adicionar item (só se aberta) -->
+      <!-- Resumo da emissão (nota fechada) -->
+      @if (n.status === 'Closed') {
+        <div class="card resumo-emissao">
+          <div class="card-title">
+            <span class="material-icons">verified</span>
+            Resumo da emissão
+          </div>
+
+          <div class="timeline">
+            <div class="timeline-line" aria-hidden="true">
+              <div class="timeline-line-fill"></div>
+            </div>
+            <ol class="timeline-steps">
+              @if (emissionStep() >= 1) {
+                <li class="tl-item">
+                  <span class="tl-dot">
+                    <span class="material-icons">check</span>
+                  </span>
+                  <div class="tl-body">
+                    <strong>Criada</strong>
+                    <span>{{ n.createdDate | date:"dd/MM/yyyy 'às' HH:mm" }}</span>
+                  </div>
+                </li>
+              }
+              @if (emissionStep() >= 2) {
+                <li class="tl-item">
+                  <span class="tl-dot">
+                    <span class="material-icons">check</span>
+                  </span>
+                  <div class="tl-body">
+                    <strong>Emitida</strong>
+                    <span>{{ n.printedDate | date:"dd/MM/yyyy 'às' HH:mm" }}</span>
+                  </div>
+                </li>
+              }
+              @if (emissionStep() >= 3) {
+                <li class="tl-item tl-item--last">
+                  <span class="tl-dot">
+                    <span class="material-icons">check</span>
+                  </span>
+                  <div class="tl-body">
+                    <strong>Estoque debitado</strong>
+                    <span>{{ totalUnits() }} un. baixadas</span>
+                  </div>
+                </li>
+              }
+              @if (emissionStep() < 3) {
+                <li class="tl-item tl-item--pending">
+                  <span class="tl-dot tl-dot--pending">
+                    <mat-spinner diameter="14" strokeWidth="2"></mat-spinner>
+                  </span>
+                  <div class="tl-body">
+                    <strong>Processando...</strong>
+                  </div>
+                </li>
+              }
+            </ol>
+          </div>
+
+          @if (emissionStep() >= 3) {
+            <div class="resumo-fiscal">
+              <div><span>Série</span><strong>1</strong></div>
+              <div><span>Protocolo</span><strong>{{ protocol(n.number) }}</strong></div>
+              <div><span>Ambiente</span><strong>Homologação</strong></div>
+            </div>
+
+            <p class="resumo-aviso">Documento demonstrativo — sem valor fiscal.</p>
+
+            <button mat-raised-button class="btn-primary w-full" (click)="viewInvoice()">
+              <span class="material-icons">description</span>
+              Abrir DANFE
+            </button>
+          }
+        </div>
+      }
+      <!-- Adicionar item (só se aberta) -->
+      @if (n.status === 'Open') {
+        <div class="card">
+          <div class="card-title">
+            <span class="material-icons">add_circle</span>
+            Adicionar Produto
+          </div>
+          <form [formGroup]="itemForm" (ngSubmit)="addItem()">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Produto</mat-label>
+              <mat-select formControlName="productId">
+                @for (p of products(); track p.id) {
+                  <mat-option [value]="p.id">
+                    {{ p.description }}
+                    <span class="saldo-hint">({{ p.balance }} em estoque)</span>
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Quantidade</mat-label>
+              <input matInput type="number" formControlName="quantity" min="1" />
+              @if (itemForm.get('quantity')?.hasError('min') && itemForm.get('quantity')?.touched) {
+                <mat-error>Mínimo 1</mat-error>
+              }
+            </mat-form-field>
+
+            <button mat-raised-button class="btn-primary w-full" type="submit" [disabled]="itemForm.invalid || adding()">
+              <span>{{ adding() ? 'Adicionando...' : 'Adicionar Item' }}</span>
+            </button>
+          </form>
+        </div>
+      }
+    </div>
+
+    <!-- Área de impressão (só aparece ao imprimir) -->
+    <div class="print-area">
+      <div class="print-header">
+        <div class="print-logo">NotaFiscal</div>
+        <div class="print-title">NOTA FISCAL Nº {{ n.number }}</div>
+        <div class="print-meta">
+          <span>Emitida em: {{ n.printedDate | date:'dd/MM/yyyy HH:mm' }}</span>
+          <span>Status: {{ n.status | invoiceStatus }}</span>
+        </div>
+      </div>
+      <table class="print-table">
+        <thead>
+          <tr>
+            <th>Produto</th>
+            <th>Quantidade</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of n.items; track item.id) {
+            <tr>
+              <td>{{ item.productDescription }}</td>
+              <td class="col-center">{{ item.quantity }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      <div class="print-footer">
+        <p>Total de itens: {{ n.items.length }}</p>
+        <p>Documento gerado pelo Sistema de Notas Fiscais — Korp</p>
+      </div>
+    </div>
+
+  }
+</div>

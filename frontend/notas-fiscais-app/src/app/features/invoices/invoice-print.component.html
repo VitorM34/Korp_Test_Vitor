@@ -1,0 +1,389 @@
+<!-- Barra de ações — fora da área de scroll, não sobrepõe a DANFE -->
+<div class="action-bar no-print">
+  @if (loading) { <span>Carregando...</span> }
+  @else if (error)  { <span class="error-text">{{ error }}</span> }
+  @else {
+    <span class="action-title">NF-e Nº {{ invoice?.number | number:'6.0-0' }} — DANFE</span>
+    <div class="action-buttons">
+      <button class="btn-print" (click)="print()">🖨 Imprimir / Salvar PDF</button>
+      <button class="btn-close" (click)="back()">← Voltar</button>
+    </div>
+  }
+</div>
+
+<div class="danfe-scroll">
+@if (!loading && !error && invoice) {
+<div class="danfe">
+
+  <!-- CANHOTO -->
+  <div class="canhoto">
+    <div class="canhoto-text">
+      RECEBEMOS DE KORP SISTEMAS S/A OS PRODUTOS CONSTANTES NA NOTA FISCAL INDICADA AO LADO
+    </div>
+    <div class="canhoto-campos">
+      <div class="canhoto-campo">
+        <span class="f-label">DATA DE RECEBIMENTO</span>
+        <div class="canhoto-linha"></div>
+      </div>
+      <div class="canhoto-campo flex2">
+        <span class="f-label">IDENTIFICAÇÃO E ASSINATURA DO RECEBEDOR</span>
+        <div class="canhoto-linha"></div>
+      </div>
+      <div class="canhoto-nf">
+        <div class="f-label">NF-e</div>
+        <div class="canhoto-num">Nº {{ invoice.number | number:'6.0-0' }}</div>
+        <div class="f-label">Série 1</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashed-line">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</div>
+
+  <!-- CABEÇALHO DANFE -->
+  <div class="danfe-header">
+
+    <!-- Emitente -->
+    <div class="emit-box">
+      <div class="emit-logo-row">
+        <div class="emit-logo">NF</div>
+        <div>
+          <div class="emit-razao">KORP SISTEMAS S/A</div>
+          <div class="emit-end">AV. TECNOLOGIA, 1000 - INOVAÇÃO</div>
+          <div class="emit-end">SÃO PAULO - SP &nbsp;|&nbsp; CEP: 01310-100</div>
+          <div class="emit-end">CNPJ: 00.000.000/0001-00</div>
+          <div class="emit-end">IE: ISENTO &nbsp;|&nbsp; (11) 3000-0000</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Centro DANFE -->
+    <div class="danfe-center">
+      <div class="danfe-title">DANFE</div>
+      <div class="danfe-sub-title">Documento Auxiliar da<br>Nota Fiscal Eletrônica</div>
+      <div class="entrada-saida">
+        <div class="es-row"><span>1 - Entrada</span></div>
+        <div class="es-row"><span>2 - Saída</span><div class="es-box">2</div></div>
+      </div>
+      <div class="danfe-nf-num">Nº {{ invoice.number | number:'6.0-0' }}</div>
+      <div class="f-label serie-info">SÉRIE: 1 &nbsp;&nbsp; Página: 1 de 1</div>
+    </div>
+
+    <!-- Fisco + Chave -->
+    <div class="fisco-box">
+      <div class="fisco-title">Controle do Fisco</div>
+      <div class="barcode">
+        @for (i of barcodeChunks; track i) {
+          <div class="bar" [style.width.px]="i"></div>
+        }
+      </div>
+      <div class="chave-acesso">{{ accessKey }}</div>
+    </div>
+
+  </div>
+
+  <!-- Natureza + Protocolo -->
+  <div class="row-line">
+    <div class="field flex3">
+      <div class="f-label">Natureza da operação</div>
+      <div class="f-val">Venda de mercadorias</div>
+    </div>
+    <div class="field flex2">
+      <div class="f-label">Número do protocolo da autorização de uso da NF-e</div>
+      <div class="f-val red-val">{{ protocol }}</div>
+    </div>
+  </div>
+  <div class="row-line">
+    <div class="field flex1">
+      <div class="f-label">Inscrição Estadual</div>
+      <div class="f-val">ISENTO</div>
+    </div>
+    <div class="field flex1">
+      <div class="f-label">Inscr. est. do subst. trib.</div>
+      <div class="f-val">—</div>
+    </div>
+    <div class="field flex1">
+      <div class="f-label">CNPJ</div>
+      <div class="f-val">00.000.000/0001-00</div>
+    </div>
+    <div class="field flex3">
+      <div class="f-label">Chave de acesso da NF-e — consulta no site: www.nfe.fazenda.gov.br</div>
+      <div class="f-val mono">{{ accessKey }}</div>
+    </div>
+  </div>
+
+  <!-- Destinatário -->
+  <div class="section-title">Destinatário/Remetente</div>
+  <div class="row-line">
+    <div class="field flex4">
+      <div class="f-label">Nome / Razão Social</div>
+      <div class="f-val bold">CONSUMIDOR FINAL</div>
+    </div>
+    <div class="field flex2">
+      <div class="f-label">CNPJ / CPF</div>
+      <div class="f-val">000.000.000-00</div>
+    </div>
+    <div class="field flex1">
+      <div class="f-label">Inscrição Estadual</div>
+      <div class="f-val">ISENTO</div>
+    </div>
+    <div class="field flex1">
+      <div class="f-label">Data emissão</div>
+      <div class="f-val">{{ invoice.createdDate | date:'dd/MM/yyyy' }}</div>
+    </div>
+  </div>
+  <div class="row-line">
+    <div class="field flex4">
+      <div class="f-label">Endereço</div>
+      <div class="f-val">AV. DAS VENDAS, 500</div>
+    </div>
+    <div class="field flex2">
+      <div class="f-label">Bairro</div>
+      <div class="f-val">CENTRO</div>
+    </div>
+    <div class="field flex1">
+      <div class="f-label">CEP</div>
+      <div class="f-val">01001-000</div>
+    </div>
+    <div class="field flex1">
+      <div class="f-label">Data saída/entrada</div>
+      <div class="f-val">{{ (invoice.printedDate ?? invoice.createdDate) | date:'dd/MM/yyyy' }}</div>
+    </div>
+  </div>
+  <div class="row-line">
+    <div class="field flex3">
+      <div class="f-label">Município</div>
+      <div class="f-val">SÃO PAULO</div>
+    </div>
+    <div class="field flex2">
+      <div class="f-label">Fone/Fax</div>
+      <div class="f-val">(11) 0000-0000</div>
+    </div>
+    <div class="field flex1">
+      <div class="f-label">UF</div>
+      <div class="f-val">SP</div>
+    </div>
+    <div class="field flex1">
+      <div class="f-label">Hora saída</div>
+      <div class="f-val">{{ (invoice.printedDate ?? invoice.createdDate) | date:'HH:mm' }}</div>
+    </div>
+  </div>
+
+  <!-- Cálculo do Imposto -->
+  <div class="section-title">Cálculo do imposto</div>
+  <div class="row-line">
+    <div class="field flex1 right">
+      <div class="f-label">Base de cálculo do ICMS</div>
+      <div class="f-val">0,00</div>
+    </div>
+    <div class="field flex1 right">
+      <div class="f-label">Valor do ICMS</div>
+      <div class="f-val">0,00</div>
+    </div>
+    <div class="field flex1 right">
+      <div class="f-label">Base de cálculo do ICMS Subst.</div>
+      <div class="f-val">0,00</div>
+    </div>
+    <div class="field flex1 right">
+      <div class="f-label">Valor do ICMS Subst.</div>
+      <div class="f-val">0,00</div>
+    </div>
+    <div class="field flex1 right bold-field">
+      <div class="f-label">Valor total dos produtos</div>
+      <div class="f-val">{{ totalItems }} un.</div>
+    </div>
+  </div>
+  <div class="row-line">
+    <div class="field flex1 right">
+      <div class="f-label">Valor do frete</div>
+      <div class="f-val">0,00</div>
+    </div>
+    <div class="field flex1 right">
+      <div class="f-label">Valor do seguro</div>
+      <div class="f-val">0,00</div>
+    </div>
+    <div class="field flex1 right">
+      <div class="f-label">Desconto</div>
+      <div class="f-val">0,00</div>
+    </div>
+    <div class="field flex1 right">
+      <div class="f-label">Outras despesas acessórias</div>
+      <div class="f-val">0,00</div>
+    </div>
+    <div class="field flex1 right">
+      <div class="f-label">Valor total do IPI</div>
+      <div class="f-val">0,00</div>
+    </div>
+    <div class="field flex1 right bold-field">
+      <div class="f-label">Valor total da nota</div>
+      <div class="f-val">{{ invoice.items.length }} iten(s)</div>
+    </div>
+  </div>
+
+  <!-- Transportador -->
+  <div class="section-title">Transportador/Volumes transportados</div>
+  <div class="row-line">
+    <div class="field flex3">
+      <div class="f-label">Nome</div>
+      <div class="f-val">—</div>
+    </div>
+    <div class="field flex2">
+      <div class="f-label">Frete por conta</div>
+      <div class="f-val">1 - Emitente</div>
+    </div>
+    <div class="field flex1">
+      <div class="f-label">Código ANTT</div>
+      <div class="f-val">—</div>
+    </div>
+    <div class="field flex1">
+      <div class="f-label">Placa do veículo</div>
+      <div class="f-val">—</div>
+    </div>
+    <div class="field flex1">
+      <div class="f-label">UF</div>
+      <div class="f-val">SP</div>
+    </div>
+    <div class="field flex2">
+      <div class="f-label">CNPJ/CPF</div>
+      <div class="f-val">—</div>
+    </div>
+  </div>
+  <div class="row-line">
+    <div class="field flex3">
+      <div class="f-label">Endereço</div>
+      <div class="f-val">—</div>
+    </div>
+    <div class="field flex2">
+      <div class="f-label">Município</div>
+      <div class="f-val">—</div>
+    </div>
+    <div class="field flex1">
+      <div class="f-label">UF</div>
+      <div class="f-val">—</div>
+    </div>
+    <div class="field flex1">
+      <div class="f-label">Inscrição Estadual</div>
+      <div class="f-val">—</div>
+    </div>
+  </div>
+  <div class="row-line">
+    <div class="field flex1">
+      <div class="f-label">Quantidade</div>
+      <div class="f-val">{{ invoice.items.length }}</div>
+    </div>
+    <div class="field flex1">
+      <div class="f-label">Espécie</div>
+      <div class="f-val">CAIXAS</div>
+    </div>
+    <div class="field flex2">
+      <div class="f-label">Marca</div>
+      <div class="f-val">KORP</div>
+    </div>
+    <div class="field flex1">
+      <div class="f-label">Numeração</div>
+      <div class="f-val">{{ invoice.number | number:'6.0-0' }}</div>
+    </div>
+    <div class="field flex1 right">
+      <div class="f-label">Peso bruto</div>
+      <div class="f-val">—</div>
+    </div>
+    <div class="field flex1 right">
+      <div class="f-label">Peso líquido</div>
+      <div class="f-val">—</div>
+    </div>
+  </div>
+
+  <!-- Itens -->
+  <div class="section-title">Itens da nota fiscal</div>
+  <table class="itens-table">
+    <thead>
+      <tr>
+        <th>Código</th>
+        <th class="desc-col">Descrição do produto/serviço</th>
+        <th>NCM/SH</th>
+        <th>CST</th>
+        <th>CFOP</th>
+        <th>UN</th>
+        <th>Qtde</th>
+        <th>Preço un</th>
+        <th>Preço total</th>
+        <th>BC ICMS</th>
+        <th>Vl.ICMS</th>
+        <th>Vl.IPI</th>
+        <th>%ICMS</th>
+        <th>%IPI</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of invoice.items; track item.id; let idx = $index) {
+        <tr [class.row-alt]="idx % 2 === 1">
+          <td class="mono">{{ item.productId | slice:0:8 | uppercase }}</td>
+          <td>{{ item.productDescription | uppercase }}</td>
+          <td class="center">30039099</td>
+          <td class="center">060</td>
+          <td class="center">5.102</td>
+          <td class="center">UN</td>
+          <td class="center bold">{{ item.quantity }}</td>
+          <td class="right">—</td>
+          <td class="right">—</td>
+          <td class="right">0,00</td>
+          <td class="right">0,00</td>
+          <td class="right">0,00</td>
+          <td class="right">0,00</td>
+          <td class="right">0,00</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <!-- ISSQN -->
+  <div class="section-title">Cálculo do ISSQN</div>
+  <div class="row-line">
+    <div class="field flex1">
+      <div class="f-label">Inscrição Municipal</div>
+      <div class="f-val">—</div>
+    </div>
+    <div class="field flex1 right">
+      <div class="f-label">Valor total dos serviços</div>
+      <div class="f-val">0,00</div>
+    </div>
+    <div class="field flex1 right">
+      <div class="f-label">Base de cálculo do ISSQN</div>
+      <div class="f-val">0,00</div>
+    </div>
+    <div class="field flex1 right">
+      <div class="f-label">Valor do ISSQN</div>
+      <div class="f-val">0,00</div>
+    </div>
+  </div>
+
+  <!-- Dados adicionais -->
+  <div class="section-title">Dados adicionais</div>
+  <div class="row-line">
+    <div class="field flex3 field--tall">
+      <div class="f-label">Observações</div>
+      <div class="f-val">
+        NF Nº {{ invoice.number | number:'6.0-0' }} &nbsp;|&nbsp;
+        Emitida em {{ invoice.createdDate | date:'dd/MM/yyyy HH:mm' }} &nbsp;|&nbsp;
+        Sistema: Korp Notas Fiscais
+      </div>
+    </div>
+    <div class="field flex1 field--tall">
+      <div class="f-label">Reservado ao fisco</div>
+      <div
+        class="f-val status-note"
+        [class.status-note--closed]="invoice.status === 'Closed'"
+        [class.status-note--open]="invoice.status !== 'Closed'">
+        {{ invoice.status === 'Closed' ? 'NOTA EMITIDA' : 'EM ABERTO' }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Rodapé -->
+  <div class="danfe-footer">
+    <span>Sistema de Notas Fiscais — Korp Sistemas &nbsp;|&nbsp; {{ currentDate | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+    <span class="footer-aviso">DOCUMENTO SEM VALOR FISCAL — FINS DEMONSTRATIVOS</span>
+  </div>
+
+</div>
+}
+</div>

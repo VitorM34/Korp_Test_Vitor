@@ -1,0 +1,113 @@
+<div>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">
+        <span class="material-icons">print</span>
+        Impressões
+      </h1>
+      <p class="page-subtitle">Histórico de emissões e reimpressões de notas fiscais</p>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon stat-icon--indigo">
+        <span class="material-icons">print</span>
+      </div>
+      <div>
+        <div class="stat-value">{{ totalCount() }}</div>
+        <div class="stat-label">Total de impressões</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon stat-icon--blue">
+        <span class="material-icons">today</span>
+      </div>
+      <div>
+        <div class="stat-value">{{ todayCount() }}</div>
+        <div class="stat-label">Hoje</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon stat-icon--green">
+        <span class="material-icons">description</span>
+      </div>
+      <div>
+        <div class="stat-value">{{ distinctInvoicesCount() }}</div>
+        <div class="stat-label">Notas distintas</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title list-toolbar">
+      <div class="list-toolbar-left">
+        <span class="material-icons">history</span>
+        Todas as Impressões
+      </div>
+      <label class="search-wrap">
+        <span class="material-icons">search</span>
+        <input
+          type="search"
+          class="search-input"
+          placeholder="Buscar nº da nota"
+          [value]="search()"
+          (input)="onSearch($event)" />
+      </label>
+    </div>
+
+    @if (loading()) {
+      <div>
+        @for (i of [1,2,3]; track i) {
+          <div class="skeleton-row">
+            <div class="skeleton-cell skeleton-cell--num"></div>
+            <div class="skeleton-cell skeleton-cell--date"></div>
+            <div class="skeleton-cell skeleton-cell--actions"></div>
+          </div>
+        }
+      </div>
+    } @else if (emptyList()) {
+      <div class="empty-state">
+        <span class="material-icons">print</span>
+        <p>Nenhuma impressão registrada ainda.</p>
+      </div>
+    } @else if (noSearchResults()) {
+      <div class="empty-state">
+        <span class="material-icons">search</span>
+        <p>Nenhuma impressão encontrada com esse filtro.</p>
+        <button mat-stroked-button class="empty-cta" (click)="clearFilters()">Limpar filtro</button>
+      </div>
+    } @else {
+      <div class="table-scroll">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Nota Nº</th>
+            <th>Data/Hora da impressão</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (e of filteredEntries(); track e.id) {
+            <tr class="tr-hover tr-animate" (click)="openInvoice(e.invoiceId)">
+              <td><strong class="number-cell">#{{ e.invoiceNumber }}</strong></td>
+              <td class="date-cell">{{ e.printedDate | date:"dd/MM/yyyy 'às' HH:mm:ss" }}</td>
+              <td>
+                <div class="row-actions">
+                  <button mat-icon-button (click)="viewInvoice(e.invoiceId, $event)" title="Visualizar NF">
+                    <span class="material-icons icon-action icon-action--view">description</span>
+                  </button>
+                  <button mat-icon-button (click)="openInvoice(e.invoiceId); $event.stopPropagation()" title="Abrir nota">
+                    <span class="material-icons icon-arrow">arrow_forward</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      </div>
+    }
+  </div>
+</div>

@@ -1,14 +1,506 @@
-*, *::before, *::after {
-  box-sizing: border-box;
-}
+*, *::before, *::after { box-sizing: border-box; }
 
 html, body {
   height: 100%;
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
+  background: #f0f2f5;
+  color: #1a1a2e;
+}
+
+/* Centraliza ícones dentro de mat-icon-button */
+button[mat-icon-button],
+button.mat-mdc-icon-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  span.material-icons,
+  mat-icon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+  }
+}
+
+/* Material injeta .mat-icon { width/height: 24px } depois do styles.scss.
+   Sem !important o glifo fica no topo da caixa (badge/botão desalinhados). */
+mat-icon.mat-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 1em !important;
+  height: 1em !important;
+  line-height: 1 !important;
+  font-size: 24px;
+  overflow: hidden;
+  vertical-align: middle;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+/* Força ligatures para Material Icons (Angular Material v18 sobrescreve com 'normal') */
+mat-icon.mat-ligature-font,
+.material-icons {
+  font-feature-settings: "liga" !important;
+  -webkit-font-feature-settings: "liga" !important;
+  text-rendering: optimizeLegibility !important;
+}
+
+/* span.material-icons usados nos títulos, stats e botões */
+span.material-icons {
+  font-family: 'Material Icons';
+  font-size: 24px;
+  font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* Botão primário não encolhe */
+.btn-primary {
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+}
+
+.btn-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  line-height: 1;
+}
+
+.mat-mdc-button .mdc-button__label,
+.mat-mdc-raised-button .mdc-button__label,
+.mat-mdc-unelevated-button .mdc-button__label,
+.mat-mdc-outlined-button .mdc-button__label {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px;
+  line-height: 1;
+}
+
+/* Page header padrão */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a237e;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  mat-icon { color: #1565c0; }
+}
+
+.page-subtitle {
+  color: #78909c;
+  font-size: 0.88rem;
+  margin: 4px 0 0;
+}
+
+/* Card padrão */
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(26,35,126,0.07);
+  margin-bottom: 20px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #37474f;
+  margin: 0 0 18px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e8eaf6;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  mat-icon { color: #5c6bc0; font-size: 20px; }
+}
+
+/* Stat cards */
+.stat-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 2px 12px rgba(26,35,126,0.07);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.stat-icon {
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  mat-icon { font-size: 26px; }
+}
+
+/* Variações de cor do .stat-icon — reutilizadas nas telas de Produtos, Notas e Impressões */
+.stat-icon--indigo { background: #e8eaf6; color: #3949ab; }
+.stat-icon--blue   { background: #e3f2fd; color: #1565c0; }
+.stat-icon--green  { background: #e8f5e9; color: #2e7d32; }
+.stat-icon--red    { background: #fce4ec; color: #c62828; }
+
+/* Badges de status */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  line-height: 1;
+
+  .mat-icon {
+    font-size: 16px;
+  }
+}
+.badge--open   { background: #e3f2fd; color: #1565c0; }
+.badge--closed { background: #e8f5e9; color: #2e7d32; }
+.badge--erro    { background: #fce4ec; color: #c62828; }
+
+/* Tabela customizada */
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #90a4ae;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #eceff1;
+    background: #fafbff;
+    &:first-child { border-radius: 8px 0 0 0; }
+    &:last-child  { border-radius: 0 8px 0 0; }
+  }
+
+  td {
+    padding: 14px 16px;
+    font-size: 0.9rem;
+    color: #37474f;
+    border-bottom: 1px solid #f5f7fa;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  .tr-hover {
+    cursor: pointer;
+    transition: background 0.15s;
+    &:hover td { background: #f8f9ff; }
+  }
+
+  .tr-removing {
+    opacity: 0.4;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  /* Utilitários de alinhamento de coluna — usar em th/td em vez de style inline */
+  .col-right  { text-align: right; }
+  .col-center { text-align: center; }
+
+  /* Nº de destaque (nota/impressão) — reutilizado em Notas Fiscais e Impressões */
+  .number-cell { color: #1a237e; }
+
+  /* Coluna de ações (ícones) alinhada à direita — reutilizada em Notas Fiscais e Impressões */
+  .row-actions {
+    display: flex;
+    gap: 4px;
+    justify-content: flex-end;
+  }
+
+  .icon-arrow { color: #5c6bc0; }
+
+  .icon-action {
+    font-size: 18px;
+    &--view   { color: #1565c0; }
+    &--delete { color: #e53935; }
+  }
+}
+
+/* Tabela responsiva: esconde colunas secundárias em janelas estreitas */
+@media (max-width: 900px) {
+  .custom-table {
+    th, td { padding: 10px 10px; font-size: 0.82rem; }
+  }
+}
+
+@media (max-width: 720px) {
+  .col-hide-sm { display: none; }
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+
+  .material-icons {
+    font-size: 48px;
+    color: #cfd8dc;
+    display: block;
+    margin: 0 auto 12px;
+  }
+
+  p {
+    color: #90a4ae;
+    font-size: 0.95rem;
+    margin: 0 0 16px;
+  }
+}
+
+.empty-cta {
+  margin-top: 4px;
+}
+
+.search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   background: #f5f7fa;
+  border: 1px solid #e8eaf0;
+  border-radius: 10px;
+  padding: 4px 12px;
+  min-width: 200px;
+  max-width: 280px;
+  flex: 1;
+
+  .material-icons {
+    font-size: 18px;
+    color: #90a4ae;
+  }
+}
+
+.search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  font-size: 0.85rem;
+  color: #37474f;
+  padding: 6px 0;
+
+  &::placeholder { color: #b0bec5; }
+}
+
+/* Loading */
+.loading-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  gap: 16px;
+  color: #90a4ae;
+  font-size: 0.9rem;
+}
+
+/* Botões */
+.btn-primary {
+  background: linear-gradient(135deg, #1565c0, #1e88e5) !important;
+  color: #fff !important;
+  border-radius: 10px !important;
+  padding: 0 20px !important;
+  height: 42px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 12px rgba(21,101,192,0.3) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  .mat-icon {
+    font-size: 20px;
+  }
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #e53935, #ef5350) !important;
+  color: #fff !important;
+  border-radius: 10px !important;
+  padding: 0 24px !important;
+  height: 44px !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  box-shadow: 0 4px 14px rgba(229,57,53,0.3) !important;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #2e7d32, #43a047) !important;
+  color: #fff !important;
+  border-radius: 10px !important;
+  padding: 0 24px !important;
+  height: 44px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 14px rgba(46,125,50,0.3) !important;
+}
+
+/* Snackbar — topo, visual amigável */
+.mat-mdc-snack-bar-container {
+  margin-top: 16px !important;
+}
+
+.snack-ok .mdc-snackbar__surface {
+  background: #ffffff !important;
+  color: #37474f !important;
+  border-radius: 12px !important;
+  border: 1px solid #e8eaf6 !important;
+  border-left: 4px solid #43a047 !important;
+  box-shadow: 0 8px 28px rgba(26, 35, 126, 0.16) !important;
+  min-width: 280px !important;
+}
+
+.snack-ok .mdc-snackbar__label {
+  color: #37474f !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+}
+
+.snack-ok .mat-mdc-button,
+.snack-ok .mat-mdc-snack-bar-action {
+  color: #2e7d32 !important;
+  font-weight: 700 !important;
 }
 
 .snack-erro .mdc-snackbar__surface {
-  background: #c62828 !important;
+  background: #ffffff !important;
+  color: #37474f !important;
+  border-radius: 12px !important;
+  border: 1px solid #ffcdd2 !important;
+  border-left: 4px solid #e53935 !important;
+  box-shadow: 0 8px 28px rgba(198, 40, 40, 0.16) !important;
+}
+
+.snack-erro .mdc-snackbar__label {
+  color: #c62828 !important;
+  font-weight: 600 !important;
+}
+
+.snack-erro .mat-mdc-button,
+.snack-erro .mat-mdc-snack-bar-action {
+  color: #c62828 !important;
+  font-weight: 700 !important;
+}
+
+/* Form grid */
+.form-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.form-grid mat-form-field {
+  flex: 1;
+  min-width: 180px;
+}
+
+/* Saldo baixo */
+.balance-critical { color: #e53935; font-weight: 700; }
+.balance-ok        { color: #2e7d32; font-weight: 600; }
+
+/* Linha de tabela com saldo zero */
+.tr-balance-zero td {
+  color: #b0bec5 !important;
+  background: #fafafa;
+}
+.tr-balance-zero .balance-critical {
+  color: #e53935 !important;
+  font-weight: 700;
+}
+
+/* ── Skeleton loading ── */
+@keyframes skeleton-shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+
+.skeleton {
+  border-radius: 6px;
+  background: linear-gradient(90deg, #eceff1 25%, #f5f7fa 50%, #eceff1 75%);
+  background-size: 600px 100%;
+  animation: skeleton-shimmer 1.4s infinite linear;
+  display: inline-block;
+}
+
+.skeleton-row {
+  display: flex;
+  gap: 16px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f5f7fa;
+  align-items: center;
+}
+
+.skeleton-cell {
+  height: 14px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #eceff1 25%, #f5f7fa 50%, #eceff1 75%);
+  background-size: 600px 100%;
+  animation: skeleton-shimmer 1.4s infinite linear;
+}
+
+/* Error banner */
+.error-banner {
+  background: #fce4ec;
+  border: 1px solid #ef9a9a;
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #c62828;
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+  mat-icon { font-size: 20px; flex-shrink: 0; }
+}
+
+/* Entrada suave para rows da tabela */
+@keyframes row-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.tr-animate {
+  animation: row-fade-in 0.25s ease-out;
+}
+
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: 20px !important;
+  overflow: hidden;
+}
+
+.mat-mdc-dialog-container {
+  --mdc-dialog-container-shape: 20px;
+}
+
+/* Força mat-icon-button a se comportar como inline dentro de flex row */
+.mat-mdc-icon-button {
+  display: inline-flex !important;
+  flex-shrink: 0 !important;
 }

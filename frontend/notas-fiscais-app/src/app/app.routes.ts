@@ -1,21 +1,31 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'produtos', pathMatch: 'full' },
+  { path: '', redirectTo: 'products', pathMatch: 'full' },
   {
-    path: 'produtos',
+    path: 'products',
     loadComponent: () =>
-      import('./features/produtos/produtos.component').then(m => m.ProdutosComponent)
+      import('./features/products/products.component').then(m => m.ProductsComponent)
   },
   {
-    path: 'notas-fiscais',
+    path: 'invoices',
     loadComponent: () =>
-      import('./features/notas-fiscais/nota-list.component').then(m => m.NotaListComponent)
+      import('./features/invoices/invoice-list.component').then(m => m.InvoiceListComponent)
   },
   {
-    path: 'notas-fiscais/:id',
+    path: 'invoices/:id',
     loadComponent: () =>
-      import('./features/notas-fiscais/nota-detail.component').then(m => m.NotaDetailComponent)
+      import('./features/invoices/invoice-detail.component').then(m => m.InvoiceDetailComponent)
   },
-  { path: '**', redirectTo: 'produtos' }
+  {
+    path: 'invoices/:id/print',
+    loadComponent: () =>
+      import('./features/invoices/invoice-print.component').then(m => m.InvoicePrintComponent)
+  },
+  {
+    path: 'impressoes',
+    loadComponent: () =>
+      import('./features/print-log/print-log.component').then(m => m.PrintLogComponent)
+  },
+  { path: '**', redirectTo: 'products' }
 ];

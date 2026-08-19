@@ -1,0 +1,158 @@
+<div>
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">
+        <span class="material-icons">store</span>
+        Produtos
+      </h1>
+      <p class="page-subtitle">Gerencie o catálogo e o saldo de estoque</p>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon stat-icon--blue">
+        <span class="material-icons">category</span>
+      </div>
+      <div>
+        <div class="stat-value">{{ products().length }}</div>
+        <div class="stat-label">Total de produtos</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon stat-icon--green">
+        <span class="material-icons">check_circle</span>
+      </div>
+      <div>
+        <div class="stat-value">{{ productsWithBalance() }}</div>
+        <div class="stat-label">Com saldo disponível</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon stat-icon--red">
+        <span class="material-icons">warning</span>
+      </div>
+      <div>
+        <div class="stat-value">{{ productsOutOfStock() }}</div>
+        <div class="stat-label">Sem estoque</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <!-- Formulário -->
+    <div class="card form-panel">
+      <div class="form-head">
+        <div class="form-head-icon">
+          <span class="material-icons">add</span>
+        </div>
+        <div>
+          <div class="form-head-title">Novo produto</div>
+          <p class="form-head-sub">Cadastre no estoque para usar nas notas</p>
+        </div>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="save()" class="product-form" #formDirective="ngForm">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Código</mat-label>
+          <input id="product-code" matInput formControlName="code" maxlength="50" autocomplete="off" />
+          <mat-hint>Ex: PROD-001</mat-hint>
+          @if (form.get('code')?.invalid && form.get('code')?.touched) {
+            <mat-error>Informe o código</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Descrição</mat-label>
+          <input matInput formControlName="description" maxlength="200" autocomplete="off" />
+          <mat-hint>Nome que aparece na nota fiscal</mat-hint>
+          @if (form.get('description')?.invalid && form.get('description')?.touched) {
+            <mat-error>Informe a descrição</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Saldo inicial</mat-label>
+          <input matInput type="number" formControlName="balance" min="0" />
+          <span matSuffix class="balance-suffix">un.</span>
+          <mat-hint>Quantidade disponível em estoque</mat-hint>
+        </mat-form-field>
+
+        <button mat-raised-button class="btn-primary btn-submit" type="submit" [disabled]="form.invalid || saving()">
+          <span class="material-icons">add</span>
+          <span>{{ saving() ? 'Salvando...' : 'Cadastrar produto' }}</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Tabela -->
+    <div class="card table-panel">
+      <div class="card-title list-toolbar">
+        <div class="list-toolbar-left">
+          <span class="material-icons">list</span>
+          Produtos Cadastrados
+        </div>
+        <label class="search-wrap">
+          <span class="material-icons">search</span>
+          <input
+            type="search"
+            class="search-input"
+            placeholder="Buscar código ou nome"
+            [value]="search()"
+            (input)="onSearch($event)" />
+        </label>
+      </div>
+
+      @if (loading()) {
+        <div>
+          @for (i of [1,2,3,4]; track i) {
+            <div class="skeleton-row">
+              <div class="skeleton-cell skeleton-cell--code"></div>
+              <div class="skeleton-cell skeleton-cell--desc"></div>
+              <div class="skeleton-cell skeleton-cell--balance"></div>
+            </div>
+          }
+        </div>
+      } @else if (emptyList()) {
+        <div class="empty-state">
+          <span class="material-icons">inbox</span>
+          <p>Nenhum produto cadastrado ainda.</p>
+          <button mat-raised-button class="btn-primary empty-cta" type="button" (click)="focusRegistration()">
+            Cadastrar primeiro produto
+          </button>
+        </div>
+      } @else if (noSearchResults()) {
+        <div class="empty-state">
+          <span class="material-icons">search</span>
+          <p>Nenhum produto encontrado.</p>
+        </div>
+      } @else {
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Descrição</th>
+              <th class="col-right">Saldo</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of filteredProducts(); track p.id) {
+              <tr class="tr-animate" [class.tr-balance-zero]="p.balance === 0">
+                <td><code class="code-chip">{{ p.code }}</code></td>
+                <td>{{ p.description }}</td>
+                <td class="col-right">
+                  <span [class]="p.balance > 0 ? 'balance-ok' : 'balance-critical'">
+                    {{ p.balance }}
+                  </span>
+                  <span class="unit"> un.</span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </div>
+</div>

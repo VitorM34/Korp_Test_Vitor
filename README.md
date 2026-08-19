@@ -1,4 +1,11 @@
+![Banner do projeto](docs/banner.png)
+
 # Korp_Teste_Vitor — Sistema de Emissão de Notas Fiscais
+
+![.NET](https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet&logoColor=white)
+![Angular](https://img.shields.io/badge/Angular-18-DD0031?logo=angular&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
 
 Projeto técnico desenvolvido como parte do processo seletivo da Korp.
 
@@ -19,11 +26,11 @@ Projeto técnico desenvolvido como parte do processo seletivo da Korp.
 Angular SPA (porta 4200)
     ↕ HTTP
 ┌──────────────┐   HTTP   ┌─────────────────┐
-│ Estoque.Api  │◄─────────│ Faturamento.Api │
+│ Inventory.Api│◄─────────│ Billing.Api     │
 │ (porta 5001) │          │ (porta 5002)    │
 └──────┬───────┘          └────────┬────────┘
        │                           │
-  EstoqueDb                  FaturamentoDb
+   inventory                    billing
   (PostgreSQL)               (PostgreSQL)
 ```
 
@@ -42,16 +49,21 @@ Acesse: http://localhost:4200
 
 ### Desenvolvimento local
 
-**Backend — Estoque.Api:**
+Suba apenas os bancos de dados via Docker Compose (as APIs já vêm pré-configuradas em `appsettings.Development.json` para apontar para eles):
 ```bash
-cd backend/Estoque.Api
+docker compose up -d inventory-db billing-db
+```
+
+**Backend — Inventory.Api:**
+```bash
+cd backend/Inventory.Api
 dotnet run
 # Swagger: http://localhost:5001/swagger
 ```
 
-**Backend — Faturamento.Api:**
+**Backend — Billing.Api:**
 ```bash
-cd backend/Faturamento.Api
+cd backend/Billing.Api
 dotnet run
 # Swagger: http://localhost:5002/swagger
 ```
@@ -64,20 +76,19 @@ npm start
 # http://localhost:4200
 ```
 
-> Requer PostgreSQL local. Ajuste as strings de conexão em `appsettings.Development.json`.
 
 ## Demonstração do cenário de falha
 
 ```bash
 # Derrubar o serviço de estoque
-docker stop estoque-api
+docker stop inventory-api
 
 # Tentar imprimir uma nota no Angular
 # → O circuit breaker (Polly) abre após as tentativas
 # → Angular exibe mensagem: "Serviço de estoque indisponível"
 
 # Restaurar
-docker start estoque-api
+docker start inventory-api
 ```
 
 ## Funcionalidades
@@ -88,19 +99,19 @@ docker start estoque-api
 - ✅ Inclusão de itens na nota (produto + quantidade)
 - ✅ Impressão de nota: debita estoque, fecha nota, exibe indicador de progresso
 - ✅ Tratamento de falhas com circuit breaker (Polly)
-- ✅ Concorrência otimista (`RowVersion` no EF Core)
-- ✅ Idempotência na baixa de saldo (`ChaveIdempotencia`)
+- ✅ Concorrência otimista (coluna de sistema `xmin` do PostgreSQL como token de concorrência no EF Core)
+- ✅ Idempotência na baixa de saldo (`IdempotencyKey`)
 - ✅ Compensação automática em falha parcial de impressão
 
 ## Detalhamento técnico
 
 ### Angular — ciclos de vida utilizados
 - `ngOnInit`: carregar dados iniciais via `HttpClient`
-- `ngOnDestroy`: unsubscribe via `Subject + takeUntil` (prevenção de memory leak)
+- `DestroyRef.onDestroy`: limpeza de estado/efeitos colaterais ao destruir o componente (substitui `ngOnDestroy` + `Subject/takeUntil`)
 
 ### RxJS utilizado
 - `pipe`, `tap`, `catchError`, `EMPTY`, `switchMap`: no fluxo de impressão
-- `takeUntil`: gerenciamento de subscriptions
+- Requisições via `HttpClient` completam sozinhas (sem necessidade de unsubscribe manual); `DestroyRef.onDestroy` cobre limpeza de estado compartilhado (ex.: `pageContext`)
 - Lazy loading de rotas: `loadComponent` com imports dinâmicos
 
 ### Angular Material
@@ -111,22 +122,22 @@ docker start estoque-api
 - `MatToolbar`, `MatButton`, `MatCard`, `MatIcon` — layout geral
 
 ### Backend C# — tratamento de erros
-- `ExceptionHandlingMiddleware` global: captura todas as exceções não tratadas
-- Exceções de domínio tipadas: `SaldoInsuficienteException`, `NotaFiscalFechadaException`, etc.
-- Resposta no padrão `ProblemDetails` (RFC 7807) para todos os erros
+- `GlobalExceptionHandler` (`IExceptionHandler`, nativo do ASP.NET Core): captura todas as exceções não tratadas
+- Exceções de domínio tipadas: `InsufficientBalanceException`, `ProductNotFoundException`, `InvoiceClosedException`, etc., mapeadas para o status HTTP correto
+- Resposta no padrão `ProblemDetails` (RFC 9457) para todos os erros, incluindo conflitos de concorrência (`DbUpdateConcurrencyException` → 409)
 
 ### LINQ utilizado
 ```csharp
 // Listagem ordenada com projeção para DTO
-db.Produtos.OrderBy(p => p.Codigo)
-           .Select(p => new ProdutoResponse(...))
+db.Products.OrderBy(p => p.Code)
+           .Select(p => new ProductResponse(...))
            .ToListAsync()
 
 // Próxima numeração sequencial
-db.NotasFiscais.MaxAsync(n => n.Numeracao)
+db.Invoices.MaxAsync(n => n.Number)
 
 // Include para eager loading
-db.NotasFiscais.Include(n => n.Itens).FirstOrDefaultAsync(n => n.Id == id)
+db.Invoices.Include(n => n.Items).FirstOrDefaultAsync(n => n.Id == id)
 ```
 
 ### Frameworks e bibliotecas

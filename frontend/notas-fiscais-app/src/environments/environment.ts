@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  estoqueApiUrl: 'http://localhost:5001',
-  faturamentoApiUrl: 'http://localhost:5002'
+  inventoryApiUrl: 'http://localhost:5001',
+  billingApiUrl: 'http://localhost:5002'
 };

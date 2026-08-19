@@ -1,0 +1,136 @@
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+  min-width: 0;
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1a237e;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #90a4ae;
+  margin-top: 4px;
+}
+
+.item-count {
+  background: #f5f5f5;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  color: #546e7a;
+}
+
+.stat-card--click {
+  border: none;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(26, 35, 126, 0.12);
+  }
+}
+
+.list-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.list-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 0 0 16px;
+}
+
+.chip {
+  border: 1px solid #e8eaf6;
+  background: #fff;
+  color: #546e7a;
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  &:hover { background: #f5f7ff; }
+
+  &--active {
+    background: #e8eaf6;
+    border-color: #c5cae9;
+    color: #1a237e;
+  }
+}
+
+.chip-count {
+  background: #eceff1;
+  color: #546e7a;
+  border-radius: 10px;
+  padding: 0 6px;
+  font-size: 0.75rem;
+  min-width: 18px;
+  text-align: center;
+}
+
+.chip--active .chip-count {
+  background: #c5cae9;
+  color: #1a237e;
+}
+
+.date-cell {
+  color: #78909c;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+/* Larguras do skeleton de carregamento da tabela de notas */
+.skeleton-cell--num    { width: 40px; }
+.skeleton-cell--status { width: 70px; margin-left: 16px; }
+.skeleton-cell--items  { width: 60px; margin-left: 16px; }
+.skeleton-cell--date   { width: 100px; margin-left: 16px; }
+
+/* ── Desktop responsivo ── */
+
+@media (max-width: 960px) {
+  .stats-row {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  /* Esconde colunas menos prioritárias em janelas estreitas */
+  .date-cell {
+    white-space: normal;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 680px) {
+  .stats-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}

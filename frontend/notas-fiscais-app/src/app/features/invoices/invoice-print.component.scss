@@ -1,0 +1,417 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: #c8c8c8;
+  font-family: Arial, "Helvetica Neue", sans-serif;
+  font-size: 9px;
+  color: #000;
+  line-height: 1.3;
+}
+
+/* ─── Barra de ações (fora do scroll — nada passa por baixo) ─── */
+.action-bar {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+  background: #1a237e;
+  color: #fff;
+  padding: 9px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+.danfe-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: #c8c8c8;
+}
+
+.action-title { font-size: 0.9rem; font-weight: 700; }
+.action-buttons { display: flex; gap: 8px; }
+.error-text { color: #c62828; }
+
+.btn-print, .btn-close {
+  border: none;
+  border-radius: 6px;
+  padding: 7px 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  &:hover { opacity: 0.85; }
+}
+.btn-print { background: #2e7d32; color: #fff; }
+.btn-close  { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.35) !important; }
+
+/* ─── Folha A4 ─── */
+.danfe {
+  width: 210mm;
+  min-height: 295mm;
+  margin: 16px auto 32px;
+  background: #fff;
+  border: 1px solid #aaa;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+  box-sizing: border-box;
+  padding: 5px;
+}
+
+/* ─── Canhoto ─── */
+.canhoto {
+  border: 1px solid #000;
+  padding: 3px 5px;
+  margin-bottom: 3px;
+}
+
+.canhoto-text {
+  font-size: 8px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.canhoto-campos {
+  display: flex;
+  gap: 0;
+}
+
+.canhoto-campo {
+  flex: 1;
+  border-right: 1px solid #666;
+  padding-right: 6px;
+  margin-right: 6px;
+  &:last-of-type { border-right: none; }
+}
+
+.canhoto-linha {
+  height: 14px;
+  border-bottom: 1px solid #000;
+  margin-top: 2px;
+}
+
+.canhoto-nf {
+  flex-shrink: 0;
+  text-align: right;
+  border-left: 1px solid #666;
+  padding-left: 8px;
+}
+
+.canhoto-num {
+  font-size: 11px;
+  font-weight: 900;
+  color: #1a237e;
+}
+
+.flex2 { flex: 2; }
+
+/* ─── Linha pontilhada ─── */
+.dashed-line {
+  font-size: 9px;
+  color: #777;
+  letter-spacing: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+  margin: 3px 0;
+}
+
+/* ─── Cabeçalho DANFE ─── */
+.danfe-header {
+  display: grid;
+  grid-template-columns: 1fr 130px 150px;
+  border: 1px solid #000;
+  margin-bottom: 0;
+}
+
+.emit-box {
+  border-right: 1px solid #000;
+  padding: 5px 6px;
+}
+
+.emit-logo-row {
+  display: flex;
+  gap: 7px;
+  align-items: flex-start;
+}
+
+.emit-logo {
+  width: 36px;
+  height: 36px;
+  background: #1a237e;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 900;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.emit-razao {
+  font-size: 10px;
+  font-weight: 900;
+  color: #1a237e;
+  text-transform: uppercase;
+}
+
+.emit-end {
+  font-size: 7.5px;
+  color: #333;
+  margin-top: 1px;
+}
+
+.danfe-center {
+  border-right: 1px solid #000;
+  padding: 4px 5px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+
+.danfe-title {
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.danfe-sub-title {
+  font-size: 7px;
+  color: #333;
+  line-height: 1.3;
+}
+
+.entrada-saida {
+  border: 1px solid #000;
+  margin: 4px 0;
+  width: 100%;
+  font-size: 7.5px;
+}
+
+.es-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1px 4px;
+  border-bottom: 1px solid #ccc;
+  &:last-child { border-bottom: none; }
+}
+
+.es-box {
+  width: 16px;
+  height: 13px;
+  border: 1px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 10px;
+}
+
+.danfe-nf-num {
+  font-size: 13px;
+  font-weight: 900;
+  color: #1a237e;
+  margin-top: 3px;
+}
+
+.serie-info {
+  margin-top: 2px;
+}
+
+.fisco-box {
+  padding: 4px 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fisco-title {
+  font-size: 8px;
+  font-weight: 700;
+  border-bottom: 1px solid #000;
+  padding-bottom: 2px;
+  margin-bottom: 2px;
+}
+
+/* Código de barras simulado */
+.barcode {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  gap: 0.5px;
+  margin: 2px 0;
+}
+
+.bar {
+  height: 100%;
+  background: #000;
+}
+
+.chave-acesso {
+  font-family: monospace;
+  font-size: 6.5px;
+  word-break: break-all;
+  line-height: 1.4;
+  color: #000;
+}
+
+/* ─── Campos genéricos ─── */
+.row-line {
+  display: flex;
+  border-left: 1px solid #000;
+  border-right: 1px solid #000;
+  border-bottom: 1px solid #000;
+}
+
+.field {
+  padding: 2px 4px;
+  border-right: 1px solid #aaa;
+  min-width: 0;
+  &:last-child { border-right: none; }
+
+  &.right .f-val { text-align: right; }
+  &.bold-field   { background: #f5f5f5; }
+}
+
+.f-label {
+  font-size: 6.5px;
+  color: #555;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.f-val {
+  font-size: 9px;
+  color: #000;
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.flex1 { flex: 1; }
+.flex2 { flex: 2; }
+.flex3 { flex: 3; }
+.flex4 { flex: 4; }
+.bold  { font-weight: 700; }
+.mono  { font-family: monospace; }
+.red-val { color: #c62828 !important; font-weight: 700; }
+
+/* Campos "Observações" / "Reservado ao fisco" — precisam de altura mínima extra */
+.field--tall {
+  min-height: 52px;
+}
+
+/* Situação da nota no campo "Reservado ao fisco" */
+.status-note {
+  font-weight: 700;
+
+  &--closed { color: #1b5e20; }
+  &--open   { color: #b71c1c; }
+}
+
+/* ─── Título de seção ─── */
+.section-title {
+  background: #e0e0e0;
+  font-size: 7.5px;
+  font-weight: 900;
+  padding: 2px 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid #000;
+  border-top: none;
+}
+
+/* ─── Tabela de itens ─── */
+.itens-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #000;
+  border-top: none;
+  font-size: 8px;
+
+  th {
+    background: #1a237e;
+    color: #fff;
+    font-size: 6.5px;
+    font-weight: 700;
+    padding: 2px 3px;
+    text-align: left;
+    white-space: nowrap;
+    border-right: 1px solid rgba(255,255,255,0.25);
+    &:last-child { border-right: none; }
+  }
+
+  td {
+    padding: 2px 3px;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #eee;
+    &:last-child { border-right: none; }
+  }
+
+  .desc-col { min-width: 100px; }
+  .row-alt td { background: #fafafa; }
+  .center  { text-align: center; }
+  .right   { text-align: right; }
+  .bold    { font-weight: 700; }
+  .mono    { font-family: monospace; font-size: 7px; }
+}
+
+/* ─── Rodapé ─── */
+.danfe-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+  padding-top: 3px;
+  border-top: 1px solid #aaa;
+  font-size: 7px;
+  color: #555;
+}
+
+.footer-aviso {
+  color: #b71c1c;
+  font-weight: 700;
+  font-size: 7.5px;
+}
+
+/* ─── Print ─── */
+@media print {
+  .no-print { display: none !important; }
+
+  :host {
+    background: #fff !important;
+    height: auto;
+    overflow: visible;
+    display: block;
+  }
+
+  .danfe-scroll {
+    overflow: visible;
+    height: auto;
+  }
+
+  .danfe {
+    width: 100%;
+    margin: 0;
+    padding: 4px;
+    border: none;
+    box-shadow: none;
+    min-height: auto;
+  }
+
+  @page {
+    size: A4;
+    margin: 8mm;
+  }
+}

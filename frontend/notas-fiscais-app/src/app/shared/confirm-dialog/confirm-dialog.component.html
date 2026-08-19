@@ -1,0 +1,18 @@
+<div class="dlg">
+  <div class="dlg-icon-ring" [style.background]="(data.iconColor ?? '#e65100') + '18'" [style.border-color]="(data.iconColor ?? '#e65100') + '40'">
+    <mat-icon [style.color]="data.iconColor ?? '#e65100'" class="dlg-icon">{{ data.icon ?? 'warning' }}</mat-icon>
+  </div>
+
+  <h2 class="dlg-title">{{ data.title }}</h2>
+
+  <p class="dlg-msg">{{ data.message }}</p>
+
+  <div class="dlg-actions">
+    <button class="dlg-btn dlg-btn-cancel" (click)="cancel()">Cancelar</button>
+    <button class="dlg-btn dlg-btn-confirm"
+      [style.background]="data.iconColor ?? '#e65100'"
+      (click)="confirm()">
+      {{ data.confirmLabel ?? 'Confirmar' }}
+    </button>
+  </div>
+</div>
