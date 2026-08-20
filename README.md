@@ -9,6 +9,8 @@
 
 Projeto técnico desenvolvido como parte do processo seletivo da Korp.
 
+📄 **[Documentação técnica detalhada](DETALHAMENTO_TECNICO.md)** — resposta ponto a ponto a cada item pedido no documento de especificação (ciclos de vida do Angular, RxJS, bibliotecas, componentes visuais, gerenciamento de dependências, frameworks, tratamento de erros, LINQ).
+
 ## Tecnologias
 
 | Camada | Stack |
@@ -38,6 +40,10 @@ Cada microsserviço possui seu próprio banco de dados (*database-per-service*).
 A comunicação entre serviços é exclusivamente via HTTP com Polly (retry + circuit breaker).
 
 ## Como executar
+
+### Pré-requisitos
+- [Docker](https://www.docker.com/) e Docker Compose (para o modo recomendado)
+- Para desenvolvimento local sem Docker nas APIs: [.NET 10 SDK](https://dotnet.microsoft.com/download) e [Node.js 18+](https://nodejs.org/) (com npm)
 
 ### Com Docker Compose (recomendado)
 
@@ -103,6 +109,8 @@ docker start inventory-api
 - ✅ Idempotência na baixa de saldo (`IdempotencyKey`)
 - ✅ Compensação automática em falha parcial de impressão
 
+**Não implementado:** uso de Inteligência Artificial (um dos três diferenciais opcionais do desafio, junto com concorrência e idempotência — implementei os dois primeiros) e testes automatizados.
+
 ## Detalhamento técnico
 
 ### Angular — ciclos de vida utilizados
@@ -114,12 +122,20 @@ docker start inventory-api
 - Requisições via `HttpClient` completam sozinhas (sem necessidade de unsubscribe manual); `DestroyRef.onDestroy` cobre limpeza de estado compartilhado (ex.: `pageContext`)
 - Lazy loading de rotas: `loadComponent` com imports dinâmicos
 
-### Angular Material
-- `MatTable` — listagens de produtos e notas
+### Componentes visuais (Angular Material + CDK)
 - `MatFormField` + `MatInput` + `MatSelect` — formulários com Reactive Forms
 - `MatProgressSpinner` — indicador de carregamento/impressão
 - `MatSnackBar` — feedback de sucesso/erro
-- `MatToolbar`, `MatButton`, `MatCard`, `MatIcon` — layout geral
+- `MatButton`, `MatIcon` — ações e ícones
+- `MatDialog` — confirmação antes de ações destrutivas/impressão
+- `MatDivider` — separadores visuais
+- `MatRipple` (Angular CDK) — feedback tátil na navegação lateral
+- Listagens de produtos e notas fiscais usam `@for` (control flow nativo do Angular, não `MatTable`), com layout próprio em CSS
+
+### Outras bibliotecas
+- `material-icons` — conjunto de ícones usado via `<span class="material-icons">`
+- `zone.js` — detecção de mudanças do Angular (padrão do CLI)
+- `tslib` — helpers de compilação TypeScript
 
 ### Backend C# — tratamento de erros
 - `GlobalExceptionHandler` (`IExceptionHandler`, nativo do ASP.NET Core): captura todas as exceções não tratadas
@@ -140,7 +156,14 @@ db.Invoices.MaxAsync(n => n.Number)
 db.Invoices.Include(n => n.Items).FirstOrDefaultAsync(n => n.Id == id)
 ```
 
-### Frameworks e bibliotecas
-- `Microsoft.Extensions.Http.Resilience` (Polly v8): retry e circuit breaker
-- `Npgsql.EntityFrameworkCore.PostgreSQL`: provider PostgreSQL para EF Core
+### Frameworks utilizados (C#)
+- **ASP.NET Core Web API** (.NET 10, minimal hosting): framework principal dos dois microsserviços
+- **Entity Framework Core 10** (`Npgsql.EntityFrameworkCore.PostgreSQL`): ORM para acesso ao PostgreSQL
+- `Microsoft.Extensions.Http.Resilience` (Polly v8): retry e circuit breaker na comunicação HTTP entre serviços
 - `Swashbuckle.AspNetCore`: documentação Swagger/OpenAPI
+
+> O desafio permitia Go ou C#. Optei por C#/.NET por ter mais domínio prático da linguagem e do ecossistema (EF Core, ASP.NET Core), o que me permitiu focar tempo nas decisões de arquitetura (concorrência, idempotência, compensação de falha) em vez de aprender sintaxe. Reconheço que Go tende a ser mais leve/performático para microsserviços, mas a escolha aqui foi pragmática.
+
+### Gerenciamento de dependências
+- **Backend (C#)**: NuGet, via `<PackageReference>` nos `.csproj` de cada microsserviço (não se aplica Golang, pois o backend foi implementado em C#/.NET)
+- **Frontend (Angular)**: npm, via `package.json`/`package-lock.json`
